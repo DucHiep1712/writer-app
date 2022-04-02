@@ -1,0 +1,58 @@
+body {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    background-color: lightgray;
+}
+
+.divider {
+    margin: 4px 0 4px 0;
+    border-bottom: 2px solid black;
+}
+
+/*Main file editor styling*/
+#editor {
+    background-color: #fff;
+    margin: auto;
+    margin-top: 20px;
+    padding: 10px;
+    border: none;
+    width: 812px;
+    height: 100vh;
+    z-index: 10;
+}
+
+/*Menu vertical bar*/
+#menu {
+    display: flex;
+    float: right;
+    position: fixed;
+    margin-top: 16px;
+    flex-direction: column;
+}
+
+#menu > button {
+    /* margin: 4px 0 4px 0; */
+    background-color: lightgray;
+    border: 1px solid lightgray;
+    cursor: pointer;
+    height: 48px;
+    width: 48px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#menu > button:hover {
+    background-color: rgb(230, 228, 228);
+    border: 1px solid rgb(54, 54, 54);
+}
+
+/*Styling file's name*/
+#file-name {
+    position: relative;
+    text-decoration: underline;
+    color: rgb(88, 174, 202);
+}
+
+body::-webkit-scrollbar {
+    display: none;
+}

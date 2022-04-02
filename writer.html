@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="resources/css/writer.css" />
+    <title>Writer app</title>
+    <script src="https://cdn.ckeditor.com/ckeditor5/33.0.0/decoupled-document/ckeditor.js"></script>
+    <script src="http://tinymce.cachefly.net/4.1/tinymce.min.js"></script>
+    <script src="test\vendor\FileSaver.js"></script>
+    <script src="dist\html-docx.js"></script>
+  </head>
+  <body>
+    <h1 id="file-name"></h1>
+    <!-- The toolbar will be rendered in this container. -->
+    <div id="toolbar-container"></div>
+
+    <div id="menu">
+      <button id="home" onclick="goHome()">
+        <img src="resources\icon\home.png" />
+      </button>
+      <div class="divider"></div>
+      <button id="download">
+        <img src="resources\icon\download.png" />
+      </button>
+    </div>
+
+    <!-- This container will become the editable. -->
+    <div id="editor"></div>
+
+    <script>
+      var date = new Date();
+
+      let files = [
+        {
+          name: "",
+          content: "",
+          date: "",
+        },
+      ];
+
+      function start() {
+        if (sessionStorage.getItem("documents")) {
+          files = JSON.parse(sessionStorage.getItem("documents"));
+        }
+      }
+
+      start();
+
+      //Add effect to writer buttons
+      function goHome() {
+        let content = document.getElementById("editor").innerHTML;
+        if (content === '<p><br data-cke-filler="true"></p>') {
+          location.href = "recent.html";
+        } else {
+          let fileSaved = document.getElementById("file-name").innerHTML;
+
+          if (fileSaved === null || fileSaved === "") {
+            if (confirm("Do you want to save your file?")) {
+              let fileName = prompt("Save file as", "");
+              if (fileName != null && fileName != "") {
+                if (!files.some((file) => file.name === fileName)) {
+                  let timeSaved =
+                    date.getDate() +
+                    "/" +
+                    date.getMonth() +
+                    "/" +
+                    date.getFullYear() +
+                    " " +
+                    date.toLocaleTimeString();
+                  files.push({
+                    name: fileName,
+                    content: content,
+                    date: timeSaved,
+                  });
+                  sessionStorage.setItem("documents", JSON.stringify(files));
+                  location.href = "recent.html";
+                } else {
+                  alert("File name already exists!");
+                }
+              }
+            } else {
+              alert("Current file has been canceled!");
+              location.href = "recent.html";
+            }
+          } else {
+            files.find((file) => {
+              if (file.name == fileSaved) {
+                file.content = document.getElementById("editor").innerHTML;
+              }
+            });
+            sessionStorage.setItem("documents", JSON.stringify(files));
+            location.href = "recent.html";
+          }
+        }
+      }
+
+      //Make file downloadable
+      // function download() {
+      //   if (document.getElementById("file-name").innerHTML != "") {
+      //     var element = document.createElement("a");
+      //     element.setAttribute(
+      //       "href",
+      //       "data:text/html;charset=utf-8," +
+      //         encodeURIComponent(document.getElementById("editor").innerHTML)
+      //     );
+      //     element.setAttribute(
+      //       "download",
+      //       document.getElementById("file-name").innerHTML
+      //     );
+
+      //     element.style.display = "none";
+      //     document.body.appendChild(element);
+
+      //     element.click();
+
+      //     document.body.removeChild(element);
+      //   } else {
+      //     alert("Please save your file first!");
+      //   }
+      // }
+
+      document
+        .getElementById("download")
+        .addEventListener("click", function (e) {
+          e.preventDefault();
+          if (document.getElementById("file-name").innerHTML != "") {
+            // alert('done');
+            // convertImagesToBase64();
+            // for demo purposes only we are using below workaround with getDoc() and manual
+            // HTML string preparation instead of simple calling the .getContent(). Becasue
+            // .getContent() returns HTML string of the original document and not a modified
+            // one whereas getDoc() returns realtime document - exactly what we need.
+            
+            var content =
+              "<!DOCTYPE html>" + document.getElementById('editor').innerHTML;
+            var orientation = "portrait";
+            var converted = htmlDocx.asBlob(content, {
+              orientation: orientation,
+            });
+
+            saveAs(
+              converted,
+              document.getElementById("file-name").innerHTML + ".docx"
+            );
+
+            var link = document.createElement("a");
+            link.href = URL.createObjectURL(converted);
+            link.download =
+              document.getElementById("file-name").innerHTML + ".docx";
+          } else {
+            alert("Please save your file first!");
+          }
+
+          // link.appendChild(
+          //   document.createTextNode(
+          //     "Click here if your download has not started automatically"
+          //   )
+          // );
+          // var downloadArea = document.getElementById("download-area");
+          // downloadArea.innerHTML = "";
+          // downloadArea.appendChild(link);
+        });
+
+      function convertImagesToBase64() {
+        contentDocument = document.getElementById('editor').getDoc();
+        var regularImages = contentDocument.querySelectorAll("img");
+        var canvas = document.createElement("canvas");
+        var ctx = canvas.getContext("2d");
+        [].forEach.call(regularImages, function (imgElement) {
+          // preparing canvas for drawing
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          canvas.width = imgElement.width;
+          canvas.height = imgElement.height;
+
+          ctx.drawImage(imgElement, 0, 0);
+          // by default toDataURL() produces png image, but you can also export to jpeg
+          // checkout function's documentation for more details
+          var dataURL = canvas.toDataURL();
+          imgElement.setAttribute("src", dataURL);
+        });
+        canvas.remove();
+      }
+
+      //Save file
+      document.addEventListener("keydown", function (event) {
+        if (event.ctrlKey && event.keyCode == 83) {
+          event.preventDefault();
+
+          //Get time created
+          let timeSaved =
+            date.getDate() +
+            "/" +
+            date.getMonth() +
+            "/" +
+            date.getFullYear() +
+            " " +
+            date.toLocaleTimeString();
+          let fileSaved = document.getElementById("file-name").innerHTML;
+
+          //Check if file's name is valid
+          if (fileSaved == null || fileSaved == "") {
+            let fileName = prompt("Save file as", "");
+            if (fileName != null && fileName != "") {
+              if (!files.some((file) => file.name === fileName)) {
+                let content = document.getElementById("editor").innerHTML;
+                files.push({
+                  name: fileName,
+                  content: content,
+                  date: timeSaved,
+                });
+                sessionStorage.setItem("documents", JSON.stringify(files));
+                document.getElementById("file-name").innerHTML = fileName;
+              } else {
+                alert("File name already exists!");
+              }
+            }
+          } else {
+            // alert(document.getElementById('editor').innerHTML);
+            files.find((file) => {
+              if (file.name == fileSaved) {
+                file.content = document.getElementById("editor").innerHTML;
+              }
+            });
+            sessionStorage.setItem("documents", JSON.stringify(files));
+          }
+        }
+      });
+
+      function getParameter(parameterName) {
+        let parameters = new URLSearchParams(window.location.search);
+        return parameters.get(parameterName);
+      }
+
+      DecoupledEditor.create(document.querySelector("#editor"))
+        .then((editor) => {
+          const toolbarContainer = document.querySelector("#toolbar-container");
+
+          toolbarContainer.appendChild(editor.ui.view.toolbar.element);
+
+          let fileParam = getParameter("fileName");
+
+          if (fileParam) {
+            document.getElementById("file-name").innerHTML = fileParam;
+            files.find((file) => {
+              if (file.name == fileParam) {
+                editor.setData(file.content);
+                file.date =
+                  date.getDate() +
+                  "/" +
+                  date.getMonth() +
+                  "/" +
+                  date.getFullYear() +
+                  " " +
+                  date.toLocaleTimeString();
+                sessionStorage.setItem("documents", JSON.stringify(files));
+              }
+            });
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    </script>
+    <script src="resources\js\editor.js"></script>
+  </body>
+</html>
