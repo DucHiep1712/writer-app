@@ -3,6 +3,12 @@
   <head>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="resources/css/writer.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap"
+      rel="stylesheet"
+    />
     <title>Writer app</title>
     <script src="https://cdn.ckeditor.com/ckeditor5/33.0.0/decoupled-document/ckeditor.js"></script>
     <script src="http://tinymce.cachefly.net/4.1/tinymce.min.js"></script>
@@ -130,9 +136,9 @@
             // HTML string preparation instead of simple calling the .getContent(). Becasue
             // .getContent() returns HTML string of the original document and not a modified
             // one whereas getDoc() returns realtime document - exactly what we need.
-            
+
             var content =
-              "<!DOCTYPE html>" + document.getElementById('editor').innerHTML;
+              "<!DOCTYPE html>" + document.getElementById("editor").innerHTML;
             var orientation = "portrait";
             var converted = htmlDocx.asBlob(content, {
               orientation: orientation,
@@ -150,19 +156,10 @@
           } else {
             alert("Please save your file first!");
           }
-
-          // link.appendChild(
-          //   document.createTextNode(
-          //     "Click here if your download has not started automatically"
-          //   )
-          // );
-          // var downloadArea = document.getElementById("download-area");
-          // downloadArea.innerHTML = "";
-          // downloadArea.appendChild(link);
         });
 
       function convertImagesToBase64() {
-        contentDocument = document.getElementById('editor').getDoc();
+        contentDocument = document.getElementById("editor").getDoc();
         var regularImages = contentDocument.querySelectorAll("img");
         var canvas = document.createElement("canvas");
         var ctx = canvas.getContext("2d");
